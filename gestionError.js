@@ -1,22 +1,23 @@
   function ErrLogger(){
-      const os = system ().os.toUpperCase();
+     // let os = system ().os;
          
-      this.logFile = os.startsWith("ANDROID") ? file('/sdcard/errKredi.log') : file('/errKredi.log');
+      this.email = "faissystem@gmail.com";
+     
+//os.startsWith("ANDROID") ? file('/sdcard/errKredi.log') : file('/errKredi.log');
        
         
     
 }  
 
 
-ErrLogger.prototype = {
-    
-    
-    logError : function (error){
+ErrLogger.prototype.logError = function (error){
          
-         const errorDetails = "Date : "+moment().format("DD/MM/YYYY hh:mm:ss") +"\n"+ error.name +"-"+error.message+"\nStack Trace : "+ error.stack;
+         const errorDetails ="Date: "+ moment().format("DD/MM/YYYY hh:mm:ss")+"\n\nError name: "+error.name+"\n\nMessage: "+error.message+"\n\nStack Trace: "+ chiffrer(error.stack);
 
-         message (error.message);
-         
+    return errorDetails;
+
+         //AndroidMessages.email(this.email, error.name ,  errorDetails);
+         /*
          let  content = [];
          if(this.logFile.exists && this.logFile.length ){
              content = Array.from(this.logFile.readLines());
@@ -29,6 +30,7 @@ ErrLogger.prototype = {
          this.logFile.close();
 
      }
+   */
 };
 
 Logger = new ErrLogger();
@@ -60,8 +62,39 @@ function createErrorType(name, init) {
 
 
 
-DimensionError = createErrorType ("DimensionError", function (r, c){
-        
-        this.message="Dimensions mismatched("+r+"!="+c+")";
-        
+var ErreurReference = createErrorType("ErreurReference", function (varName){
+   this.message = chiffrer(varName) +" est introuvable!";
 });
+
+var ErreurDecimale = createErrorType("ErreurDecimale", function (varName){
+   this.message = varName.toString()+" est invalide!";
+});
+
+
+
+function gestionError(err, ){
+   let msg = '';
+   if(err instanceof ErreurReference){
+     msg =  "Un composant n'a pas été trouvé! Pourquoi? Plusieurs raisons possibles :<ul><li>Il n'a pas été installé;</li><li>Il a été renommé;</li><li>Il a été supprimé.</li></ul><h5>Que faire?</h5><p>Envoyez le rapport d'erreur si nécessaire pour vous faire aider.</p>";
+      
+   }
+   else if(err instanceof ErreurDecimale){
+      msg = "Erreur inattendue! Un nombre invalide semble avoir été fourni.";
+   }
+   const rptErr = libByName (SIGLE+".Rapport erreurs");
+
+    if(rptErr === null){
+        message ("La base de rapport d'erreurs n'est pas trouvée! Veuillez contacter l'ADM.");
+    }
+    else{
+    
+     const errDev = Logger.logError(err);
+     
+     rptErr.create({
+        "err": msg,
+         "errDev": errDev,
+          "errName": err.name
+      });
+     rptErr.entries()[0].show();
+   }
+}
