@@ -72,7 +72,7 @@ var ErreurDecimale = createErrorType("ErreurDecimale", function (varName){
 
 
 
-function gestionError(err, ){
+function gestionError(err){
    let msg = '';
    if(err instanceof ErreurReference){
      msg =  "Un composant n'a pas été trouvé! Pourquoi? Plusieurs raisons possibles :<ul><li>Il n'a pas été installé;</li><li>Il a été renommé;</li><li>Il a été supprimé.</li></ul><h5>Que faire?</h5><p>Envoyez le rapport d'erreur si nécessaire pour vous faire aider.</p>";
